@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Autostart programs
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+ pkill -u $USER '^feh$'
+ 
+hc() {
+    herbstclient "$@"
+}
+
+hc emit_hook reload
+
+#xsetroot -solid '#5A8E3A'
+
+# remove all existing keybindings
+hc keyunbind --all
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Set programs
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+#<Variable> <Program>           <Key>
+
+Term="xfce4-terminal"           # Super+Return
+Web="google-chrome-stable"      # Super+c
+File="nemo"                   # Super+Shift+t
+Editor="subl"                   # Super+Shift+s
+Menu="dmenu_run"                # Super+d
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Keybindings
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+#Mod=Mod1    # Use alt as the main modifier
+Mod=Mod4   # Use the super key as the main modifier
+
+#>>> Window and desktop actions
+hc keybind $Mod-Shift-e quit
+hc keybind $Mod-Shift-r reload
+hc keybind $Mod-q close
+
+#>>> Open programs
+hc keybind $Mod-Return spawn $Term                  #>  Open terminal
+hc keybind $Mod-c spawn $Web                        #>  Open navegator
+hc keybind $Mod-Shift-f spawn $Web facebook.com     #>  Open facecbook 
+hc keybind $Mod-Shift-y spawn $Web youtube.com      #>  Open youtube
+hc keybind $Mod-Shift-t spawn $File                 #>  Open file manager
+hc keybind $Mod-Shift-s spawn $Editor               #>  Open text-editor
+hc keybind $Mod-d spawn $Menu                       #>  Open menudd
+
+#>>> Exec screenshot
+hc keybind Print spawn scrot 'My_herbstluftwm-gaps_%a-%d%b%y_%H.%M.png' -e 'viewnior ~/$f'
+
+# moving clients in tiling and floating mode
+hc keybind $Mod-Shift-Left  shift left
+hc keybind $Mod-Shift-Down  shift down
+hc keybind $Mod-Shift-Up    shift up
+hc keybind $Mod-Shift-Right shift right
+hc keybind $Mod-Shift-h     shift left
+hc keybind $Mod-Shift-j     shift down
+hc keybind $Mod-Shift-k     shift up
+hc keybind $Mod-Shift-l     shift right
+
+# tags
+#tag_names=("H" "E" "R" "B" "S" "T" "L" "U" "F" "T" "W" "M")
+tag_names=( {1..10} )
+tag_keys=( {1..9} 0 )
+
+hc rename default "${tag_names[0]}" || true
+for i in "${!tag_names[@]}" ; do
+    hc add "${tag_names[$i]}"
+    key="${tag_keys[$i]}"
+    if ! [ -z "$key" ] ; then
+        hc keybind "$Mod-$key" use_index "$i"
+        hc keybind "$Mod-Shift-$key" move_index "$i"
+    fi
+done
+
+# cycle through tags
+hc keybind $Mod-period use_index +1 --skip-visible
+hc keybind $Mod-comma  use_index -1 --skip-visible
+
+# layouting
+hc keybind $Mod-s floating toggle
+hc keybind $Mod-Shift-space fullscreen toggle
+#hc keybind $Mod-Shift-f set_attr clients.focus.floating toggle
+hc keybind $Mod-p pseudotile toggle
+# The following cycles through the available layouts within a frame, but skips
+# layouts, if the layout change wouldn't affect the actual window positions.
+# I.e. if there are two windows within a frame, the grid layout is skipped.
+hc keybind $Mod-space                                                           \
+            or , and . compare tags.focus.curframe_wcount = 2                   \
+                     . cycle_layout +1 vertical horizontal max vertical grid    \
+               , cycle_layout +1
+
+# mouse
+hc mouseunbind --all
+hc mousebind $Mod-Button1 move
+hc mousebind $Mod-Button2 zoom
+hc mousebind $Mod-Button3 resize
+
+# focus
+hc keybind $Mod-BackSpace   cycle_monitor
+hc keybind $Mod-Tab         cycle_all +1
+hc keybind $Mod-Shift-Tab   cycle_all -1
+#hc keybind $Mod-c cycle
+hc keybind $Mod-i jumpto urgent
+
+# theme
+hc attr theme.tiling.reset 1
+hc attr theme.floating.reset 1
+hc set frame_border_active_color '#000000'
+hc set frame_border_normal_color '#000000'
+hc set frame_bg_normal_color '#000000'
+hc set frame_bg_active_color '#000000'
+hc set frame_border_width 0
+hc set always_show_frame 1
+hc set frame_bg_transparent on
+hc set frame_transparent_width 0
+hc set frame_gap 10
+
+hc attr theme.active.color "#120f2a"
+hc attr theme.normal.color '#131313'
+hc attr theme.urgent.color '#FF0000'
+hc attr theme.inner_width 6
+hc attr theme.inner_color '#131313'
+hc attr theme.border_width 16
+hc attr theme.floating.border_width 12
+hc attr theme.floating.outer_width 0
+hc attr theme.floating.outer_color '#131313'
+hc attr theme.active.inner_color '#706bff'
+hc attr theme.active.outer_color '#131313'
+hc attr theme.normal.inner_color '#121212'
+hc attr theme.normal.outer_color '#121212'
+hc attr theme.background_color '#131313'
+
+hc set window_gap 6
+hc set frame_padding 0
+hc set smart_window_surroundings off
+hc set smart_frame_surroundings on
+hc set mouse_recenter_gap off
+
+# rules
+hc unrule -F
+#hc rule class=XTerm tag=3 # move all xterms to tag 3
+hc rule focus=on # normally focus new clients
+#hc rule focus=off # normally do not focus new clients
+# give focus to most common terminals
+#hc rule class~'(.*[Rr]xvt.*|.*[Tt]erm|Konsole)' focus=on
+hc rule windowtype~'_NET_WM_WINDOW_TYPE_(DIALOG|UTILITY|SPLASH)' floating=on
+hc rule windowtype='_NET_WM_WINDOW_TYPE_DIALOG' focus=on
+hc rule windowtype~'_NET_WM_WINDOW_TYPE_(NOTIFICATION|DOCK|DESKTOP)' manage=off
+
+hc set tree_style '╾│ ├└╼─┐'
+
+# unlock, just to be sure
+hc unlock

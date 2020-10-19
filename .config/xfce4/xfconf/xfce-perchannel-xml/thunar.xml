@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<channel name="thunar" version="1.0">
+  <property name="last-view" type="string" value="ThunarIconView"/>
+  <property name="last-location-bar" type="string" value="ThunarLocationEntry"/>
+  <property name="last-icon-view-zoom-level" type="string" value="THUNAR_ZOOM_LEVEL_100_PERCENT"/>
+  <property name="last-window-width" type="int" value="1560"/>
+  <property name="last-window-height" type="int" value="825"/>
+  <property name="last-window-maximized" type="bool" value="false"/>
+  <property name="last-separator-position" type="int" value="170"/>
+  <property name="hidden-bookmarks" type="array">
+    <value type="string" value="network://"/>
+    <value type="string" value="file:///home/diego"/>
+  </property>
+  <property name="hidden-devices" type="array">
+    <value type="string" value="fbdc7e0a-fb32-44f0-8ce4-bdeaafc355bf"/>
+  </property>
+  <property name="last-show-hidden" type="bool" value="true"/>
+</channel>
